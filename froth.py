@@ -250,14 +250,14 @@ class VM(object):
         and2 = self.stack.pop()
         self.stack.append(and2 & and1)
 
-    @argToken(0, name="and")
+    @argToken(0, name="or")
     def _or(self):
         "( a b -- a | b )"
         or1 = self.stack.pop()
         or2 = self.stack.pop()
         self.stack.append(or2 | or1)
 
-    @argToken(0, "not")
+    @argToken(0, name="not")
     def _not(self):
         "( a -- !a )"
         self.stack.append(~self.stack.pop())
