@@ -417,7 +417,7 @@ class IDE(Tk):
             self.update()
             self.network.tick()
 
-            time.sleep(max(0, time.time() - t))
+            time.sleep(max(0.001, time.time() - t))
             if self.vm and self.tickdelay < time.time():
                 self.ret = self.vm.tick()
                 self.stackviewer.Refresh()
