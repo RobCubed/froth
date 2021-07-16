@@ -253,12 +253,19 @@ class Tooltip(Toplevel):
 class EventText(Text): # https://stackoverflow.com/a/16375233
     def __init__(self, *args, **kwargs):
         Text.__init__(self, *args, **kwargs)
+        self.bind("<Control-a>", self.select_all)
 
 
         # create a proxy for the underlying widget
         self._orig = self._w + "_orig"
         self.tk.call("rename", self._w, self._orig)
         self.tk.createcommand(self._w, self._proxy)
+
+    def select_all(self, event):
+        self.tag_add(SEL, "1.0", END)
+        self.mark_set(INSERT, "1.0")
+        self.see(INSERT)
+        return 'break'
 
     def _proxy(self, *args):
         # let the actual widget perform the requested action
@@ -324,6 +331,7 @@ class IDE(Tk):
         self.editor.tag_configure("error", background="#ff5555")
 
         self.editor.bind("<Key>", self.Autocomplete)
+
         self.editor.bind("<<Change>>", self.OnEntry)
         self.editor.bind("<<Scroll>>", self.OnScroll)
         self.editor.bind("<Button-1>", self.Autocomplete)
