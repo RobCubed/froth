@@ -12,6 +12,16 @@ assert vm.stack == [1, 1, 1, 3, 1]
 
 print("PASSED BASIC TESTS")
 
+
+ROT = """
+1 2 3 rot
+"""
+vm = froth.VM(ROT)
+assert vm.runUntilEnd() == froth.Errors.END_OF_PROGRAM
+assert vm.stack == [3, 1, 2]
+
+print("PASSED ROT TESTS")
+
 MACRO = """
 macro two 1 1 add ; 1
 two

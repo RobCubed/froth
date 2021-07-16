@@ -287,6 +287,7 @@ class VM(object):
     def rot(self):
         "( a b c -- c a b )"
         self.stack.append(self.stack.pop(-3))
+        self.stack.append(self.stack.pop(-3))
 
     # ------- Output --------
     @token
