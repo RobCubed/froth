@@ -340,8 +340,8 @@ class IDE(Tk):
         self.runButton = ttk.Button(self.sidebar, text="Run", command=self.Run)
         self.runButton.grid(row=0,column=1, sticky=EW)
 
-        self.delaybarframe = ttk.LabelFrame(self.sidebar, text="Delay - 0.0")
-        self.delaybar = ttkwidgets.TickScale(self.delaybarframe, from_=0, to=2, orient=HORIZONTAL, digits=1, resolution=0.1,
+        self.delaybarframe = ttk.LabelFrame(self.sidebar, text="Hz - 0.5")
+        self.delaybar = ttkwidgets.TickScale(self.delaybarframe, from_=0.5, to=60, orient=HORIZONTAL, digits=1, resolution=0.5,
                                              command=self.UpdateDelay, showvalue=0)
         self.delaybar.pack(fill=BOTH, expand=1)
         self.delaybarframe.grid(row=1, column=1, sticky="new")
@@ -405,7 +405,7 @@ class IDE(Tk):
 
 
         self.tickdelaytime = self.delaybar.get()
-        self.tickdelay = time.time() + self.tickdelaytime
+        self.tickdelay = time.time() + (1/self.tickdelaytime)
         self.ret = froth.Errors.UNDEFINED
         # quick refresh because why not
         self.realTokenMap = {}
@@ -429,7 +429,7 @@ class IDE(Tk):
                     self.editor.see("%d.0"%(self.vm.pc+1))
                     self.Stop()
                 elif self.ret == froth.Errors.END_OF_PROGRAM: self.Stop()
-                self.tickdelay = time.time() + self.tickdelaytime
+                self.tickdelay = time.time() + (1/self.tickdelaytime)
             if time.time() > refreshtime:
                 self.FullRefresh()
                 refreshtime = time.time() + 3
@@ -539,7 +539,7 @@ class IDE(Tk):
 
     def UpdateDelay(self, value):
         value = round(float(value), 1)
-        self.delaybarframe.config(text=f"Delay - {value}")
+        self.delaybarframe.config(text=f"Hz - {value}")
         self.tickdelaytime = value
 
     def Run(self):
