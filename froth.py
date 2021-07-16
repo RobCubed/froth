@@ -12,6 +12,7 @@ class Errors(enum.IntEnum):
     UNKNOWN_WORD = 5
     MEMORY_ERROR = 6
     DEPTH_EXCEEDED = 7
+    DIVIDE_BY_ZERO = 8
 
 def isDigit(v):
     try:
@@ -211,7 +212,10 @@ class VM(object):
     @token
     def div(self):
         "( a b -- n/n )"
-        self.stack.append(self.stack.pop(-2) // self.stack.pop())
+        try:
+            self.stack.append(self.stack.pop(-2) // self.stack.pop())
+        except ZeroDivisionError:
+            return Errors.DIVIDE_BY_ZERO
 
     @token
     def mod(self):
