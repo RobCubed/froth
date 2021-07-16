@@ -339,7 +339,7 @@ class IDE(Tk):
         self.editor.bind("<<Change>>", self.OnEntry)
         self.editor.bind("<<Scroll>>", self.OnScroll)
         self.editor.bind("<Button-1>", self.Autocomplete)
-        self.editor.bind("<Control-+>", lambda e: self.ChangeFontSize(2))
+        self.editor.bind("<Control-plus>", lambda e: self.ChangeFontSize(2))
         self.editor.bind("<Control-minus>", lambda e: self.ChangeFontSize(-2))
         self.autocompleteBuffer = ""
 
