@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 import tkinter.filedialog
+import tkinter.font
 import tkinter.messagebox
 from fuzzywuzzy import process, fuzz
 import ttkwidgets
@@ -224,7 +225,7 @@ class Tooltip(Toplevel):
         self.list.config(width=0)
         self.overrideredirect(1)
         self.update()
-        self.geometry(f"+{x}+{y+48}")
+        self.geometry(f"+{x+(self.winfo_width()//4)}+{y+32}")
 
         self.bind("<Escape>", lambda e: (self.destroy(), editor.focus_set()))
         self.bind("<Return>", self.Complete)
@@ -301,23 +302,26 @@ class IDE(Tk):
 
         self.activefile = ""
 
+        self.fontsize = 12
+        self.font = tkinter.font.nametofont("TkFixedFont").actual()["family"]
 
         editFrame = ttk.Frame(self)
         editFrame.grid(row=0, column=0, sticky=NSEW, columnspan=2)
         editFrame.rowconfigure(0, weight=1)
         editFrame.columnconfigure(1, weight=1)
-        self.linecount = Text(editFrame, font=("TkFixedFont", 12),  bg="#282a36", fg="#8be9fd", width=4, maxundo=-1)
+        self.linecount = Text(editFrame, font=(self.font, self.fontsize),  bg="#282a36", fg="#8be9fd", width=4, maxundo=-1)
         self.linecount.tag_configure('line', justify='right')
         self.linecount.grid(row=0, column=0, sticky=NSEW)
         self.linecount.insert("0.0", "0", "line")
         self.linecount.config(state=DISABLED, selectbackground=self.linecount.cget('bg'), inactiveselectbackground=self.linecount.cget('bg'))
 
-        self.editor = EventText(editFrame, font=("TkFixedFont", 12), bg="#282a36", fg="#8be9fd", insertbackground="white",
+
+        self.editor = EventText(editFrame, font=(self.font, self.fontsize), bg="#282a36", fg="#8be9fd", insertbackground="white",
                            highlightcolor="#282a36", wrap="none")
         self.editor.tag_configure("number", foreground="#ffb86c")
         self.editor.tag_configure("builtin", foreground="#bd93f9")
         self.editor.tag_configure("macro", foreground="#f1fa8c")
-        self.editor.tag_configure("comment", foreground="#6272a4", font=("TkFixedFont", 11, "italic"))
+        self.editor.tag_configure("comment", foreground="#6272a4", font=(self.font, self.fontsize))
         yscroll = ttk.Scrollbar(editFrame, command=self.editor.yview)
         yscroll.grid(row=0, column=2, sticky=NS)
         self.editor["yscrollcommand"] = yscroll.set
@@ -335,6 +339,8 @@ class IDE(Tk):
         self.editor.bind("<<Change>>", self.OnEntry)
         self.editor.bind("<<Scroll>>", self.OnScroll)
         self.editor.bind("<Button-1>", self.Autocomplete)
+        self.editor.bind("<Control-+>", lambda e: self.ChangeFontSize(2))
+        self.editor.bind("<Control-minus>", lambda e: self.ChangeFontSize(-2))
         self.autocompleteBuffer = ""
 
         self.tags = ["number", "builtin", "macro"]
@@ -400,6 +406,7 @@ class IDE(Tk):
 
         self.display = Display(self, height=64)
         self.display.grid(row=10, column=1, sticky=NSEW)
+
 
         self.builtinre = re.compile(f"\\b({'|'.join(froth.tokenMap.keys())}|;)\\b")
         self.macrore = re.compile("")
@@ -491,6 +498,13 @@ class IDE(Tk):
         f.close()
         self.RefreshTitle()
 
+    def ChangeFontSize(self, amt):
+        self.fontsize += amt
+        self.editor.config(font=(self.font, self.fontsize))
+        self.editor.tag_configure("comment", foreground="#6272a4", font=(self.font, self.fontsize))
+        self.linecount.config(font=(self.font, self.fontsize))
+
+
     def OnScroll(self, e=""):
         self.linecount.yview_moveto(self.editor.yview()[0])
 
@@ -523,6 +537,7 @@ class IDE(Tk):
             Tooltip.Clear()
         else:
             x,y,width,height = self.editor.bbox(INSERT)
+            print(x,y,width,height)
             if not getCurrentWord(self.editor):
                 Tooltip.Clear()
                 return
@@ -535,7 +550,7 @@ class IDE(Tk):
                 Tooltip(self.editor, self.editor, [
                         (x[0], self.realTokenMap[x[0]][0].__doc__ if x[0] in self.realTokenMap else self.words[x[0]])
                             for x in matches],
-                        xroot + x, yroot + y)
+                        xroot + x, yroot + y+height)
             else:
                 Tooltip.Clear()
 
